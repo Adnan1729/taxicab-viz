@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taxicab"
+version = "0.1.0"
+description = "Visualizing taxicab numbers and sums of two cubes across sign regimes."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Your Name" }]
+license = { text = "MIT" }
+keywords = ["number-theory", "taxicab", "ramanujan", "visualization"]
+
+# Runtime deps kept minimal; conda handles the heavy lifting.
+# Listed here so `pip install .` also works standalone.
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "pyarrow",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ---------- Ruff (linter + formatter, replaces black/isort/flake8) ----------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",   # pycodestyle + pyflakes
+    "I",             # isort (import sorting)
+    "B",             # bugbear (common bug patterns)
+    "UP",            # pyupgrade (modernize syntax)
+    "SIM",           # simplify
+    "NPY",           # numpy-specific rules
+    "N",             # pep8 naming
+]
+ignore = [
+    "E501",          # line too long — formatter handles this
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------- Pytest ----------
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = [
+    "-ra",                  # show summary of all non-passing
+    "--strict-markers",
+    "--cov=taxicab",
+    "--cov-report=term-missing",
+]
+
+# ---------- Mypy ----------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["matplotlib.*", "pyarrow.*"]
+ignore_missing_imports = true

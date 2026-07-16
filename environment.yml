@@ -1,0 +1,14 @@
+name: taxicab-viz
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy
+  - pandas
+  - matplotlib
+  - pyarrow          # for parquet
+  - jupyterlab
+  - pytest
+  - pytest-cov
+  - ruff
+  - mypy

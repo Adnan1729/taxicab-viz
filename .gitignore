@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.env
+.venv/
+env/
+
+# Conda
+.conda/
+
+# Data & outputs (regeneratable)
+data/raw/*
+data/processed/*
+figures/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!figures/.gitkeep
+
+# Notebooks
+.ipynb_checkpoints/
+notebooks/*.ipynb
+!notebooks/00_scratch.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
