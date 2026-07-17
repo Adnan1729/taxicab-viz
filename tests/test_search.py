@@ -1,7 +1,8 @@
 """Tests for taxicab.search."""
 
+import pytest  # type: ignore[import]
 import pandas as pd
-import pytest
+from contextlib import contextmanager
 
 from taxicab.search import (
     SearchConfig,
