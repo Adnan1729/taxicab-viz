@@ -1,7 +1,5 @@
 """Tests for taxicab.core."""
 
-import pytest
-
 from taxicab.core import Representation, icbrt, representations, representations_bounded
 
 
@@ -64,8 +62,12 @@ class TestRepresentationsBounded:
 
 class TestRepresentationInvariants:
     def test_rejects_a_greater_than_b(self) -> None:
-        with pytest.raises(ValueError):
+        try:
             Representation(5, 3)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("Expected ValueError for a > b")
 
     def test_value_matches_definition(self) -> None:
         rep = Representation(9, 10)
