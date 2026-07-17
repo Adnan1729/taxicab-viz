@@ -1,7 +1,7 @@
 """Tests for taxicab.curves."""
 
 import numpy as np
-import pytest
+import pytest # type: ignore[import]
 
 from taxicab.curves import sample_curve_full, sample_curve_positive
 
