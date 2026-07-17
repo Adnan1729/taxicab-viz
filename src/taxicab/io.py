@@ -14,19 +14,15 @@ from taxicab.signs import SignRegime
 
 @dataclass(frozen=True)
 class SweepManifest:
-    """Metadata about a persisted sweep result.
+    """Metadata about a persisted sweep result."""
 
-    Written as JSON alongside the parquet file. Ensures every artifact on disk
-    carries enough context to be reproduced or understood later without
-    grepping through code.
-    """
-
-    n_max: int
     regime: str
     n_representations: int
     n_multi_rep: int
     created_utc: str
-    schema_version: int = 1
+    n_max: int | None = None      # POSITIVE regime bound
+    b_max: int | None = None      # MIXED regime bound
+    schema_version: int = 2       # bumped: added b_max
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2)
@@ -36,11 +32,16 @@ class SweepManifest:
         return cls(**json.loads(text))
 
 
-def write_sweep(df: pd.DataFrame, out_dir: Path, name: str, *, n_max: int, regime: SignRegime) -> Path:
-    """Write a sweep result to `out_dir/name.parquet` with a `.json` sidecar.
-
-    Returns the parquet path.
-    """
+def write_sweep(
+    df: pd.DataFrame,
+    out_dir: Path,
+    name: str,
+    *,
+    regime: SignRegime,
+    n_max: int | None = None,
+    b_max: int | None = None,
+) -> Path:
+    """Write a sweep result to `out_dir/name.parquet` with a `.json` sidecar."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     parquet_path = out_dir / f"{name}.parquet"
@@ -50,18 +51,18 @@ def write_sweep(df: pd.DataFrame, out_dir: Path, name: str, *, n_max: int, regim
 
     counts = df.groupby("N").size()
     manifest = SweepManifest(
-        n_max=n_max,
         regime=regime.value,
         n_representations=len(df),
         n_multi_rep=int((counts >= 2).sum()),
         created_utc=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        n_max=n_max,
+        b_max=b_max,
     )
     manifest_path.write_text(manifest.to_json())
     return parquet_path
 
 
 def read_sweep(parquet_path: Path) -> tuple[pd.DataFrame, SweepManifest]:
-    """Read a parquet + sidecar produced by `write_sweep`."""
     parquet_path = Path(parquet_path)
     manifest_path = parquet_path.with_suffix(".json")
     df = pd.read_parquet(parquet_path, engine="pyarrow")
