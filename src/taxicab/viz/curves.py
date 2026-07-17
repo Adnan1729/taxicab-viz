@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from taxicab.curves import sample_curve_positive
 from taxicab.viz.style import PALETTE
@@ -41,33 +40,26 @@ def plot_curve_with_points(
     """
     xs, ys = sample_curve_positive(n, n_points=curve_points)
 
-    # Smooth curve
-    ax.plot(xs, ys, color=PALETTE.primary, linewidth=1.2, zorder=2)
+    # Smooth curve.
+    ax.plot(xs, ys, color=PALETTE.primary, linewidth=0.9, zorder=2)
 
-    # Integer points, plotted twice: a white halo underneath, filled circle on top.
-    # The halo makes the marker read cleanly even where labels or gridlines overlap.
+    # Integer points, both (a, b) and its mirror (b, a). Outlined markers
+    # for the classical look — hollow circle with a black edge.
     for a, b in representations:
-        ax.scatter(
-            [a, b], [b, a],  # both (a, b) and its mirror (b, a) — the curve is symmetric
-            s=60,
-            facecolor=PALETTE.background,
-            edgecolor=PALETTE.background,
-            linewidth=2.5,
-            zorder=3,
-        )
         ax.scatter(
             [a, b], [b, a],
             s=32,
-            color=PALETTE.accent,
+            facecolor=PALETTE.background,
+            edgecolor=PALETTE.text,
+            linewidth=0.9,
             zorder=4,
         )
 
     if label_points:
         for a, b in representations:
-            # Label sits above and to the right of the upper-triangle point (a, b) with a <= b.
-            label = _format_representation(a, b)
+            # Only label the upper-triangle copy (a <= b) to avoid clutter.
             ax.annotate(
-                label,
+                _format_representation(a, b),
                 xy=(a, b),
                 xytext=(6, 6),
                 textcoords="offset points",
@@ -76,12 +68,11 @@ def plot_curve_with_points(
                 zorder=5,
             )
 
-    # Axes
     cbrt_n = n ** (1 / 3)
     ax.set_xlim(-cbrt_n * 0.05, cbrt_n * 1.15)
     ax.set_ylim(-cbrt_n * 0.05, cbrt_n * 1.15)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_title(f"$N = {n:,}$", fontsize=11, pad=8)
+    ax.set_title(f"$N = {n:,}$", fontsize=10, pad=6)
     ax.set_xlabel("$x$")
     ax.set_ylabel("$y$")
 
@@ -93,8 +84,7 @@ def plot_taxicab_grid(
 ) -> plt.Figure:
     """Grid of curve-with-points panels, one per (N, representations) entry.
 
-    Returns the figure — caller is responsible for saving (via viz.style.savefig)
-    and closing.
+    Returns the figure — caller is responsible for saving and closing.
     """
     n_panels = len(entries)
     nrows = (n_panels + ncols - 1) // ncols
@@ -107,7 +97,6 @@ def plot_taxicab_grid(
         row, col = divmod(idx, ncols)
         plot_curve_with_points(axes[row][col], n, reps)
 
-    # Hide any unused panels (if n_panels doesn't fill the grid)
     for idx in range(n_panels, nrows * ncols):
         row, col = divmod(idx, ncols)
         axes[row][col].axis("off")

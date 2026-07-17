@@ -16,11 +16,11 @@ def test_palette_has_valid_hex_colors() -> None:
         PALETTE.primary,
         PALETTE.secondary,
         PALETTE.tertiary,
-        PALETTE.accent,
+        PALETTE.accent_1,
+        PALETTE.accent_2,
         PALETTE.background,
         PALETTE.text,
-        PALETTE.muted_text,
     ]:
         assert color.startswith("#")
         assert len(color) == 7
-        int(color[1:], 16)  # valid hex, raises if not
+        int(color[1:], 16)
