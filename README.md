@@ -2,7 +2,7 @@
 
 Enumeration, classification, and visualisation of representations of integers as
 sums of two cubes, across the positive and mixed sign regimes. This repository
-accompanies the blog post *[Taxicab Numbers, Sixty Years On](https://your-blog-url-here/blog/taxicab.html)*.
+accompanies the blog post *[Taxicab Numbers, Sixty Years On](https://amahmud.neocities.org/blog/taxicab)*.
 
 ## What's here
 
