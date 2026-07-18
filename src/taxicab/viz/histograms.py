@@ -51,8 +51,8 @@ def plot_count_distribution(
             color=PALETTE.text,
         )
 
-    ax.set_xlabel("Number of representations $k$")
-    ax.set_ylabel("Count of $N$" + (" (log scale)" if log_y else ""))
+    ax.set_xlabel("Number of representations k")
+    ax.set_ylabel("Count of N" + (" (log scale)" if log_y else ""))
     ax.set_xticks(ks)
     ax.set_xlim(ks.min() - 0.6, ks.max() + 0.6)
     if log_y:
@@ -71,8 +71,9 @@ def plot_cumulative_growth(
 ) -> None:
     """Log-log cumulative counts of N ≤ x with ≥ k representations.
 
-    Data lines are black, distinguished by linestyle. Reference power-law
-    slopes are drawn in `accent_1` to stand apart as theoretical predictions.
+    Data lines are text-colored, distinguished by linestyle. Reference power-law
+    slopes are drawn in accent_1 and anchored below the sparsest data line so
+    they don't get occluded.
     """
     counts_per_n = df.groupby("N").size().sort_index()
     n_values = counts_per_n.index.to_numpy()
@@ -82,7 +83,9 @@ def plot_cumulative_growth(
 
     linestyles = ["-", "--", ":"]
 
-    # Data lines: cumulative counts of qualifying N.
+    # Track the sparsest line's endpoint so the reference can be anchored below it.
+    sparsest_top: float | None = None
+
     for i, k in enumerate(thresholds):
         qualifying = n_values[counts_arr >= k]
         if len(qualifying) == 0:
@@ -94,34 +97,38 @@ def plot_cumulative_growth(
             color=PALETTE.text,
             linestyle=linestyles[i % len(linestyles)],
             linewidth=0.9,
-            label=f"$\\geq {k}$ representations",
+            label=f"\u2265 {k} representations",
             zorder=3,
         )
+        # Remember the highest threshold seen — its top y is the sparsest.
+        if sparsest_top is None or float(cumulative[-1]) < sparsest_top:
+            sparsest_top = float(cumulative[-1])
 
-    # Reference power-law slopes: y = C x^slope, anchored so the reference
-    # ends at the top-right of the primary (k=1) line for visual comparison.
-    top_y = float((counts_arr >= 1).sum())
-    x_ref = np.logspace(np.log10(max(float(n_values.min()), 1e3)), np.log10(n_max), 50)
-    for slope in reference_slopes:
-        c = top_y / (n_max**slope)
-        y_ref = c * x_ref**slope
-        ax.plot(
-            x_ref,
-            y_ref,
-            color=PALETTE.accent_1,
-            linestyle="-.",
-            linewidth=0.8,
-            label=f"$x^{{{slope:.3g}}}$ reference",
-            alpha=0.9,
-            zorder=2,
+    # Reference: anchor below the sparsest data line, in the empty middle band
+    # of the plot, so it isn't hidden underneath a solid line of the same color.
+    if sparsest_top is not None:
+        x_ref = np.logspace(
+            np.log10(max(float(n_values.min()), 1e3)), np.log10(n_max), 50
         )
+        anchor_y = sparsest_top * 0.35  # 35% below the sparsest line's endpoint
+        for slope in reference_slopes:
+            c = anchor_y / (n_max**slope)
+            y_ref = c * x_ref**slope
+            ax.plot(
+                x_ref,
+                y_ref,
+                color=PALETTE.accent_1,
+                linestyle="--",
+                linewidth=1.0,
+                label=f"x^{slope:.3g} reference",
+                zorder=2,
+            )
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("$N$ (log scale)")
-    ax.set_ylabel("Count of qualifying $N \\leq x$ (log scale)")
+    ax.set_xlabel("N (log scale)")
+    ax.set_ylabel("Count of qualifying N \u2264 x (log scale)")
     ax.legend(loc="lower right")
-
 
 def plot_distribution_and_growth(df: pd.DataFrame, n_max: int) -> plt.Figure:
     """Two-panel figure: left = count distribution, right = cumulative growth."""

@@ -72,7 +72,7 @@ def plot_curve_with_points(
     ax.set_xlim(-cbrt_n * 0.05, cbrt_n * 1.15)
     ax.set_ylim(-cbrt_n * 0.05, cbrt_n * 1.15)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_title(f"$N = {n:,}$", fontsize=10, pad=6)
+    ax.set_title(f"$N = $ {n:,}", fontsize=10, pad=6)
     ax.set_xlabel("$x$")
     ax.set_ylabel("$y$")
 
@@ -101,5 +101,27 @@ def plot_taxicab_grid(
         row, col = divmod(idx, ncols)
         axes[row][col].axis("off")
 
+    fig.tight_layout()
+    return fig
+
+def plot_generic_vs_taxicab(
+    generic_n: int,
+    generic_reps: Sequence[tuple[int, int]],
+    taxicab_n: int,
+    taxicab_reps: Sequence[tuple[int, int]],
+    panel_size: float = 3.8,
+) -> plt.Figure:
+    """Side-by-side contrast: a taxicab-1 curve next to a taxicab-2 curve.
+
+    Used pedagogically to show why the taxicab curve is 'special' — the curve
+    passes through more than one lattice point.
+    """
+    fig, (ax_left, ax_right) = plt.subplots(
+        1, 2, figsize=(panel_size * 2, panel_size)
+    )
+    plot_curve_with_points(ax_left, generic_n, generic_reps)
+    plot_curve_with_points(ax_right, taxicab_n, taxicab_reps)
+    ax_left.set_title(f"$N = $ {generic_n:,} (typical)", fontsize=10, pad=6)
+    ax_right.set_title(f"$N = $ {taxicab_n:,} (taxicab)", fontsize=10, pad=6)
     fig.tight_layout()
     return fig
